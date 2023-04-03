@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+    <div id="header" th:fragment="headerFragment">
+        상단메뉴 <br>
+        /fragments/header.html <br>
+        <a th:href="@{#}">회원가입</a>
+        <a th:href="@{#}">회원목록</a>
+        <a th:href="@{#}">상품등록</a>
+        <a th:href="@{#}">상품조회</a>
+        <br><br>
+        thymeleaf 예제 <br>
+        <th:block th:each="num : ${#numbers.sequence(1,8)}">
+         <a th:href="@{|/exam${num}|}">exam[[${num}]]</a>
+<!--        <a th:href="@{/exam{num}(num=${num})}">exam[[${num}]]</a>-->
+        </th:block>
+
+    </div>
+</html>

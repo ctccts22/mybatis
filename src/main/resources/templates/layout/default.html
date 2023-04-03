@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${title}"></title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/main.css}"/>
+</head>
+<body>
+    <div id="wrapper">
+        <!-- src/main/resources/ + templates/fragments/header + .html -->
+        <!-- ~{파일의 논리 경로 :: 조각이름} -->
+
+        <!-- start header -->
+        <div th:replace="~{fragments/header :: headerFragment}"></div>
+        <!-- end header -->
+
+        <!-- start aside(left) -->
+        <div th:replace="~{fragments/aside :: asideFragment}"></div>
+        <!-- end aside(left) -->
+
+        <!-- start content -->
+        <div id="rightcolumn" style="overflow: scroll;">
+            <!-- 사용자정의 페이지 -->
+            <th:block layout:fragment="costomContents"></th:block>
+        </div>
+        <!-- end content -->
+
+        <!-- start footer -->
+        <div th:replace="~{fragments/footer :: footerFragment}"></div>
+        <!-- end footer -->
+
+
+        <!-- 사용자정의 페이지 js파일 -->
+        <th:block layout:fragment="customJs"></th:block>
+    </div>
+</body>
+</html>
