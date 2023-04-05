@@ -44,18 +44,24 @@ public class MemberController {
 	}
 	@PostMapping("/deleteMember")
 	public String deleteMember(@RequestParam("memberId") String memberId,
-							   @RequestParam("memberPw") String memberPw,
-							   Model model) {
-		if (memberService.isPasswordCorrect(memberId, memberPw)) {
-			memberService.deleteOrdersForMember(memberId);
-			memberService.deleteMember(memberId);
-			return "redirect:/member/memberList";
-		} else {
-			model.addAttribute("title", "회원탈퇴");
-			model.addAttribute("memberId", memberId);
-			model.addAttribute("errorMessage", "비밀번호가 올바르지 않습니다.");
-			return "member/deleteMember";
+							   @RequestParam("memberPw") String memberPw) {
+
+		String redirectURI = "redirect:/member/deleteMember?memberId=" + memberId;
+		// 비밀번호 확인
+		Member member = memberService.getMemberInfoById(memberId);
+		if (member != null) {
+			String checkPw = member.getMemberPw();
+
+			if (checkPw.equals(memberPw)) {
+				// 서비스 호출
+				memberService.deleteMember(memberId);
+				redirectURI = "redirect:/member/memberList";
+			}
 		}
+
+
+		return redirectURI;
+
 	}
 
 	// update

@@ -10,15 +10,25 @@ import ksmart.mybatis.dto.MemberLevel;
 
 @Mapper
 public interface MemberMapper {
+	//판매자별 상품조회
+	List<Member> goodsListBySeller();
 
-	public void deleteLoginRecordsByMemberId(String memberId);
-	public void deleteGoodsRecordsByMemberId(String memberId);
-	public void deleteOrderRecordsByMemberId(String memberId);
-	public void deleteOrdersForMember(String memberId);
-	public void deleteMember(String memberId);
+	Member findMemberById(String memberId);
 
+	// 판매자가 등록한 상품 주문 이력 삭제
+	public int deleteOrderBySellerId(String memberId);
 
-//	public int deleteMember(String memberId);
+	// 판매자가 등록한 상품삭제
+	public int deleteGoodsBySellerId(String memberId);
+
+	// 구매자가 주문한 이력 삭제
+	public int deleteOrderById(String memberId);
+
+	// 로그인 이력 삭제
+	public int deleteLoginById(String memberId);
+
+	// 회원 탈퇴
+	public int deleteMemberById(String memberId);
 
 
 	// 회원 수정

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ksmart.mybatis.mapper.GoodsMapper">
+
+    <resultMap id="Goods" type="ksmart.mybatis.dto.Goods">
+        <id column="g_code" property="goodsCode"/>
+        <result column="g_name" property="goodsName"/>
+        <result column="g_price" property="goodsPrice"/>
+        <result column="g_seller_id" property="goodsSellerId"/>
+        <result column="g_reg_date" property="goodsRegDate"/>
+        <association property="sellerInfo" javaType="Member">
+            <id column="m_id" property="memberId" />
+            <result column="m_pw" property="memberPw" />
+            <result column="m_level" property="memberLevel" />
+            <result column="m_name" property="memberName" />
+            <result column="m_addr" property="memberAddr" />
+            <result column="m_email" property="memberEmail" />
+            <result column="m_reg_date" property="memberRegDate" />
+        </association>
+    </resultMap>
+
+    <select id="getGoodsList" resultMap="ksmart.mybatis.mapper.GoodsMapper.Goods">
+        SELECT
+            g.g_code,
+            g.g_name,
+            g.g_price,
+            g.g_seller_id,
+            m.m_name,
+            m.m_email,
+            g.g_reg_date
+        FROM
+                tb_goods as g
+            inner join
+                tb_member m
+            on
+                g.g_seller_id = m.m_id;
+    </select>
+
+    <insert id="insertGoods" parameterType="ksmart.mybatis.dto.Goods">
+        INSERT INTO
+            tb_goods (g_code, g_name, g_price, g_seller_id, g_reg_date)
+        VALUES
+            (#{goodsCode}, #{goodsName}, #{goodsPrice}, #{goodsSellerId}, #{goodsRegDate, jdbcType=TIMESTAMP})
+    </insert>
+
+
+</mapper>

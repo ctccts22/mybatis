@@ -19,31 +19,36 @@ public class MemberService {
 	// DI 생성자 메소드 주입방식
 	private final MemberMapper memberMapper;
 
-	public void deleteMember(String memberId) {
-		memberMapper.deleteLoginRecordsByMemberId(memberId);
-		memberMapper.deleteOrderRecordsByMemberId(memberId);
-		memberMapper.deleteGoodsRecordsByMemberId(memberId);
-		memberMapper.deleteMember(memberId);
-	}
-	public void deleteOrdersForMember(String memberId) {
-		memberMapper.deleteOrdersForMember(memberId);
-	}
-
-	public boolean isPasswordCorrect(String memberId, String memberPw) {
-		Member member = memberMapper.getMemberInfoById(memberId);
-		return member != null && member.getMemberPw().equals(memberPw);
-	}
-
 	//delete
-//	public void deleteMember(String memberId) {
-//		memberMapper.deleteMember(memberId);
-//	}
+	public void deleteMember(String memberId) {
+		Member memberInfo = memberMapper.getMemberInfoById(memberId);
+		if (memberInfo != null) {
+			String memberLevel = memberInfo.getMemberLevel();
+			switch (memberLevel) {
+				case "2":
+					// 판매자가 등록한 상품 주문 이력 삭제
+					memberMapper.deleteOrderBySellerId(memberId);
+					// 판매자가 등록한 상품 삭제
+					memberMapper.deleteGoodsBySellerId(memberId);
+					break;
+				case "3":
+					// 구매자가 주문한 이력 삭제
+					memberMapper.deleteOrderById(memberId);
+					break;
+			}
+			// 로그인 이력 삭제
+			memberMapper.deleteLoginById(memberId);
+			// 회원 탈퇴
+			memberMapper.deleteMemberById(memberId);
+		}
+	}
 
 	// update
 	public Member getMemberInfoById(String memberId) {
 		Member memberInfo = memberMapper.getMemberInfoById(memberId);
 		return memberInfo;
 	}
+
 	public int modifyMember(Member member) {
 		int result = memberMapper.modifyMember(member);
 		return result;
@@ -53,24 +58,27 @@ public class MemberService {
 		int result = memberMapper.addMember(member);
 		return result;
 	}
+
 	/**
 	 * 회원 등급 조회
+	 *
 	 * @return List<MemberLevel>
 	 */
-	public List<MemberLevel> getMemberLevelList(){
-		
+	public List<MemberLevel> getMemberLevelList() {
+
 		List<MemberLevel> memberLevelList = memberMapper.getMemberLevelList();
-		
+
 		return memberLevelList;
 	}
-	
+
 	/**
 	 * 회원목록 조회
+	 *
 	 * @return List<Member>
 	 */
-	public List<Member> getMemberList(){
+	public List<Member> getMemberList() {
 		List<Member> memberList = memberMapper.getMemberList();
-		if(memberList != null) {	
+		if (memberList != null) {
 			/*
 			for(Member member : memberList) {
 				String memberLevel = member.getMemberLevel();
@@ -90,28 +98,20 @@ public class MemberService {
 			memberList.forEach(member -> {
 				String memberLevel = member.getMemberLevel();
 				switch (memberLevel) {
-				case "1":
-					member.setMemberLevelName("관리자");
-					break;
-				case "2":
-					member.setMemberLevelName("판매자");
-					break;
-				default:
-					member.setMemberLevelName("구매자");
-					break;
+					case "1":
+						member.setMemberLevelName("관리자");
+						break;
+					case "2":
+						member.setMemberLevelName("판매자");
+						break;
+					default:
+						member.setMemberLevelName("구매자");
+						break;
 				}
 			});
 		}
 
 		return memberList;
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
 }

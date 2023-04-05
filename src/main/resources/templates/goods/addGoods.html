@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/form.css}" />
+</head>
+
+<th:block layout:fragment="customContents">
+    <p th:if="${message}" th:text="${message}" style="color:red;"></p>
+    <form id="addGoodsForm" th:action="@{/goods/addGoods}" method="post">
+        <table>
+            <tbody>
+            <tr>
+                <td class="labeltd">
+                    <label for="goodsCode">상품코드</label>
+                </td>
+                <td colspan="2">
+                    <input type="text" id="goodsCode" name="goodsCode" required>
+                </td>
+            </tr>
+            <tr>
+                <td class="labeltd">
+                    <label for="goodsName">상품이름</label>
+                </td>
+                <td colspan="2">
+                    <input type="text" id="goodsName" name="goodsName" required>
+                </td>
+            </tr>
+            <tr>
+                <td class="labeltd">
+                    <label for="goodsPrice">상품가격</label>
+                </td>
+                <td colspan="2">
+                    <input type="number" id="goodsPrice" name="goodsPrice" required>
+                </td>
+            </tr>
+            <tr>
+                <td class="labeltd">
+                    <label for="goodsSellerId">판매자 ID</label>
+                </td>
+                <td colspan="2">
+                    <input type="text" id="goodsSellerId" name="goodsSellerId" required>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3">
+                    <button type="submit" id="submitBtn">상품등록</button>
+                    <button type="reset" id="resetBtn">입력취소</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </form>
+</th:block>
+
+</html>

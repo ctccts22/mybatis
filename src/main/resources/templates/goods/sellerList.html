@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/table.css}" />
+</head>
+
+<th:block layout:fragment="customContents">
+    <table>
+        <thead>
+        <tr>
+            <th>판매자 아이디</th>
+            <th>판매자 이름</th>
+            <th>판매자 이메일</th>
+            <th>상품 코드</th>
+            <th>상품 이름</th>
+            <th>상품 가격</th>
+            <th>상품 판매자 아이디</th>
+            <th>상품 등록일자</th>
+        </tr>
+        </thead>
+        <tbody>
+        <th:block th:unless="${goodsListBySeller == null}" th:each="seller : ${goodsListBySeller}">
+            <th:block   th:unless="${seller.sellerList == null}"
+                        th:each="goods, status : ${seller.sellerList}">
+                <tr>
+                    <th:block th:if="${status.index == 0}">
+                    <td th:rowspan="${status.size}" th:text="${seller.memberId}"></td>
+                    <td th:rowspan="${status.size}" th:text="${seller.memberName}"></td>
+                    <td th:rowspan="${status.size}" th:text="${seller.memberEmail}"></td>
+                    </th:block>
+                    <td th:text="${goods.goodsCode}"></td>
+                    <td th:text="${goods.goodsName}"></td>
+                    <td th:text="${goods.goodsPrice}"></td>
+                    <td th:text="${goods.goodsSellerId}"></td>
+                    <td th:text="${goods.goodsRegDate}"></td>
+                </tr>
+            </th:block>
+
+            <th:block th:if="${seller.sellerList == null}">
+                <tr>
+                    <td th:text="${seller.memberId}"></td>
+                    <td th:text="${seller.memberName}"></td>
+                    <td th:text="${seller.memberEmail}"></td>
+                    <td colspan="4">등록된 상품의 정보가 없습니다.</td>
+                </tr>
+            </th:block>
+
+        </th:block>
+        <tr th:if="${goodsListBySeller == null}">
+            <td colspan="8">등록된 판매자별 상품의 정보가 없습니다.</td>
+        </tr>
+        </tbody>
+    </table>
+</th:block>
+
+</html>
