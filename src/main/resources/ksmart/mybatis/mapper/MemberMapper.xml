@@ -1,6 +1,158 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ksmart.mybatis.mapper.MemberMapper">
+
+	<resultMap id="memberResultMap" type="Member">
+		<id column="m_id" property="memberId" />
+		<result column="m_pw" property="memberPw" />
+		<result column="m_level" property="memberLevel" />
+		<result column="m_name" property="memberName" />
+		<result column="m_addr" property="memberAddr" />
+		<result column="m_email" property="memberEmail" />
+		<result column="m_reg_date" property="memberRegDate" />
+	</resultMap>
+
+	<select id="getMemberLevelList" resultType="MemberLevel">
+		/* 회원 등급 조회 */
+		SELECT
+			 l.level_num	AS levelNum
+			,l.level_name	AS levelName
+		FROM
+			tb_member_level AS l;
+	</select>
+
+	<select id="getMemberList" resultType="Member">
+		/* 회원 목록 조회 */
+		SELECT
+			 m_id			AS memberId
+			,m_pw			AS memberPw
+			,m_name			AS memberName
+			,m_level		AS memberLevel
+			,m_email		AS memberEmail
+			,m_addr			AS memberAddr
+			,m_reg_date		AS memberRegDate
+		FROM
+			tb_member;
+	</select>
+
+	<select id="idCheck" parameterType="String" resultType="boolean">
+		SELECT
+			IF(count(1)=0,1,0)
+		FROM
+			tb_member AS m
+		WHERE
+			m_id = #{memberId};
+	</select>
+
+	<insert id="addMember" parameterType="Member">
+
+		INSERT INTO tb_member
+		(m_id, m_pw, m_level, m_name, m_addr, m_email, m_reg_date)
+		VALUES
+		(#{memberId}, #{memberPw}, #{memberLevel},
+		#{memberName}, #{memberAddr}, #{memberEmail}, CURDATE());
+	</insert>
+
+<!--	<update id="modifyMember" parameterType="Member">-->
+<!--		UPDATE tb_member-->
+<!--		SET m_pw = #{memberPw},-->
+<!--		m_level = #{memberLevel},-->
+<!--		m_name = #{memberName},-->
+<!--		m_addr = #{memberAddr},-->
+<!--		m_email = #{memberEmail}-->
+<!--		WHERE m_id = #{memberId};-->
+<!--	</update>-->
+
+<!--	<update id="modifyMember" parameterType="Member">-->
+<!--		UPDATE tb_member-->
+<!--		<set>-->
+<!--			<if test="memberPw != null and memberPw !=''">-->
+<!--				m_pw = #{memberPw},-->
+<!--			</if>-->
+<!--			<if test="memberLevel != null and memberLevel !=''">-->
+<!--				m_level = #{memberLevel},-->
+<!--			</if>-->
+<!--			<if test="memberName != null and memberName !=''">-->
+<!--				m_name = #{memberName},-->
+<!--			</if>-->
+<!--			<if test="memberAddr != null and memberAddr !=''">-->
+<!--				m_addr = #{memberAddr},-->
+<!--			</if>-->
+<!--			<if test="memberEmail != null and memberEmail !=''">-->
+<!--				m_email = #{memberEmail},-->
+<!--			</if>-->
+<!--		</set>-->
+<!--		WHERE-->
+<!--		m_id = #{memberId};-->
+<!--	</update>-->
+
+	<update id="modifyMember" parameterType="Member">
+		UPDATE tb_member
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="memberPw != null and memberPw !=''">
+				m_pw = #{memberPw},
+			</if>
+			<if test="memberLevel != null and memberLevel !=''">
+				m_level = #{memberLevel},
+			</if>
+			<if test="memberName != null and memberName !=''">
+				m_name = #{memberName},
+			</if>
+			<if test="memberAddr != null and memberAddr !=''">
+				m_addr = #{memberAddr},
+			</if>
+			<if test="memberEmail != null and memberEmail !=''">
+				m_email = #{memberEmail},
+			</if>
+		</trim>
+		WHERE
+		m_id = #{memberId};
+	</update>
+
+
+	<select id="getMemberInfoById" parameterType="string" resultType="Member">
+		SELECT
+		 m.m_id			AS memberId
+		,m.m_pw			AS memberPw
+		,m.m_name		AS memberName
+		,m.m_level		AS memberLevel
+		,m.m_email		AS memberEmail
+		,m.m_addr		AS memberAddr
+		,m.m_reg_date	AS memberRegDate
+		FROM
+		tb_member AS m
+		WHERE
+		m.m_id = #{memberId};
+	</select>
+
+<!--	<delete id="deleteMember" parameterType="string">-->
+<!--		DELETE FROM tb_member WHERE m_id = #{memberId};-->
+<!--	</delete>-->
+
+
+	<delete id="deleteLoginRecordsByMemberId" parameterType="String">
+		DELETE FROM tb_login WHERE login_id = #{memberId}
+	</delete>
+
+	<delete id="deleteGoodsRecordsByMemberId" parameterType="String">
+		DELETE FROM tb_goods WHERE g_seller_id = #{memberId}
+	</delete>
+
+	<delete id="deleteOrderRecordsByMemberId" parameterType="String">
+		DELETE o FROM tb_order o
+		INNER JOIN tb_goods g ON o.o_g_code = g.g_code
+		WHERE g.g_seller_id = #{memberId}
+	</delete>
+
+	<delete id="deleteMember" parameterType="String">
+		DELETE FROM tb_member WHERE m_id = #{memberId}
+	</delete>
+
+	<delete id="deleteOrdersForMember" parameterType="string">
+		DELETE FROM tb_order WHERE o_id = #{memberId}
+	</delete>
 
 </mapper>

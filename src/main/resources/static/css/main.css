@@ -17,12 +17,12 @@ body {
 }
 #wrapper { 
  margin: 0 auto;
- width: 922px;
+ width: 1022px;
 
 }
 #header {
  color: #333;
- width: 900px;
+ width: 1000px;
  float: left;
  padding: 10px;
  border: 1px solid #ccc;
@@ -48,11 +48,11 @@ body {
  margin: 0px 0px 5px 0px;
  padding: 10px;
  height: 350px;
- width: 678px;
+ width: 778px;
  display: inline;
 }
 #footer { 
- width: 900px;
+ width: 1000px;
  clear: both;
  color: #333;
  border: 1px solid #ccc;
