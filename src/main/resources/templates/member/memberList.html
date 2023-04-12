@@ -7,6 +7,7 @@
 </head>
 
 <th:block layout:fragment="customContents">
+	<div th:include="~{search/search :: searchFragment}"></div><br>
 	<table>
 		<thead>
 			<tr>
@@ -30,18 +31,26 @@
 				<td th:text="${l.memberAddr}"></td>
 				<td th:text="${l.memberEmail}"></td>
 				<td th:text="${l.memberRegDate}"></td>
-
 				<td>
 					<a th:href="@{/member/modifyMember(memberId=${l.memberId})}">수정</a>
 				</td>
 				<td>
-					<a th:href="@{/member/deleteMember(memberId=${l.memberId})}">삭제</a>
+					<a th:href="@{/member/removeMember(memberId=${l.memberId})}">삭제</a>
 				</td>
 			</tr>
 			<tr th:if="${memberList == null}">
 				<td colspan="7">등록된 회원의 정보가 없습니다.</td>
 			</tr>
-
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
 		</tbody>
 	</table>	
 </th:block>

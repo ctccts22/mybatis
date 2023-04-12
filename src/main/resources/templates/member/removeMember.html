@@ -6,31 +6,29 @@
 	<link rel="stylesheet" type="text/css" th:href="@{/css/form.css}" />
 </head>
 <th:block layout:fragment="customJs">
-<script th:src="@{/js/jquery-3.6.4.js}"></script>
+	<script th:src="@{/js/jquery-3.6.4.js}"></script>
 	<script>
-		$(document).ready(function () {
-			$('#submitBtn').click(function () {
-				const memberPwEle = $('#memberPw');
-				let memberPw = memberPwEle.val();
-				if(typeof memberPw == 'undefined' || memberPw == null || memberPw == ''){
-					alert('회원비밀번호를 입력해주세요');
-					memberPwEle.focus();
-					return false;
-				}
-				$('#deleteMemberForm').submit();
-			});
+		$('#submitBtn').click(function(){
+			const memberPwEle = $('#memberPw');
+			let memberPw =	memberPwEle.val();
+			if(typeof memberPw == 'undefined' || memberPw == null || memberPw == ''){
+				alert('회원비밀번호를 입력해주세요');
+				memberPwEle.focus();
+				return false;
+			}
+			$('#removeMemberForm').submit();
 		});
-		$(document).ready(function () {
-			$('#resetBtn').click(function () {
-				location.href = '/member/memberList';
-				history.go(-1);
-			});
+		
+		$('#resetBtn').click(function(){
+			location.href = '/member/memberList';
+			//history.go(-1);
 		});
 	</script>
 </th:block>
+
 <th:block layout:fragment="customContents">
-	<form id="deleteMemberForm" th:action="@{/member/deleteMember}" method="post">
-		<div th:if="${errorMessage != null}" class="error-message" th:text="${errorMessage}"></div>
+	<form id="removeMemberForm" th:action="@{/member/removeMember}" method="post">
+		<input type="hidden" name="_method" value="delete"/>
 		<table>
 			<tbody>
 				<tr>
@@ -38,19 +36,19 @@
 						<label for="memberId">회원아이디</label>
 					</td>
 					<td>
-						<input type="text" id="memberId"
-							   name="memberId" placeholder="회원아이디를 입력해주세요." th:value="${memberId}" readonly="readonly">
+						<input type="text" id="memberId" th:value="${memberId}" 
+							   name="memberId" placeholder="회원아이디를 입력해주세요." readonly="readonly"/>
 					</td>
 				</tr>
 				<tr>
 					<td class="labeltd">
 						<label for="memberPw">회원비밀번호</label>
 					</td>
-					<td colspan="2">
+					<td>
 						<input type="text" id="memberPw" 
 							   name="memberPw" placeholder="회원비밀번호를 입력해주세요."/>
 					</td>
-				</tr>
+				</tr>															
 				<tr>
 					<td colspan="2">
 						<button type="button" id="submitBtn">회원탈퇴</button>

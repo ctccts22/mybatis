@@ -1,126 +1,177 @@
 package ksmart.mybatis.controller;
 
 import java.util.List;
+import java.util.Map;
 
-import ksmart.mybatis.mapper.MemberMapper;
-import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import jakarta.servlet.http.HttpSession;
 import ksmart.mybatis.dto.Member;
 import ksmart.mybatis.dto.MemberLevel;
+import ksmart.mybatis.mapper.MemberMapper;
 import ksmart.mybatis.service.MemberService;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Controller
-@AllArgsConstructor
 @RequestMapping("/member")
+@AllArgsConstructor
+@Slf4j
 public class MemberController {
-
-
-	private static final Logger log = LoggerFactory.getLogger(MemberController.class);
-
 
 	private final MemberService memberService;
 	private final MemberMapper memberMapper;
+	
+	@GetMapping("/logout")
+	public String logout(HttpSession session
+			, @CookieValue(value = "loginKeepId", required = false) Cookie cookie
+			, HttpServletResponse response) {
+		if (cookie != null)	{
+			cookie.setPath("/");
+			cookie.setMaxAge(0);
+			response.addCookie(cookie);
+		}
+		session.invalidate();
+		return "redirect:/member/login";
+	}
+	
+	@PostMapping("/login")
+	public String login(@RequestParam(name="memberId") String memberId
+			  			, @RequestParam(name="memberPw") String memberPw
+			  			, HttpSession session
+			  			, RedirectAttributes reAttr
+						, HttpServletResponse response) {
+		String redirect = "redirect:/member/login";
+		Map<String, Object> loginResultMap = memberService.loginCheck(memberId, memberPw);
+		boolean loginCheck = (boolean) loginResultMap.get("loginCheck");
+		if(loginCheck) {
+			Member memberInfo = (Member) loginResultMap.get("memberInfo");
+			String memberName = memberInfo.getMemberName();
+			String memberLevel = memberInfo.getMemberLevel();
+			session.setAttribute("SID", 	memberId);
+			session.setAttribute("SLEVEL", 	memberLevel);
+			session.setAttribute("SNAME", 	memberName);
 
+//			if (하루동안 유지하는 체크박스 value yes)
+			Cookie cookie = new Cookie("loginKeepId", memberId);
+			cookie.setPath("/");
+			cookie.setMaxAge(60*60*24); // 60초 * 60분 * 24 하루
+			response.addCookie(cookie);
+
+			redirect = "redirect:/";
+		}else {
+			reAttr.addAttribute("result", "일치하는 회원의 정보가 없습니다.");
+		}
+		
+		return redirect;
+	}
+	
+	@GetMapping("/login")
+	public String login( Model model
+						,@RequestParam(name="result", required = false) String result) {
+		
+		model.addAttribute("title", "로그인");
+		if(result != null) model.addAttribute("result", result);
+		
+		return "login/login";
+	}
+
+
+	@DeleteMapping("/removeMember")
+	public String removeMember(@RequestParam(name="memberId") String memberId
+							  ,@RequestParam(name="memberPw") String memberPw) {
+		
+		String redirectURI = "redirect:/member/removeMember?memberId=" + memberId;
+		// 비밀번호 확인
+		Member member = memberService.getMemberInfoById(memberId);
+		if(member != null) {
+			String checkPw = member.getMemberPw();
+			
+			if(checkPw.equals(memberPw)) {
+				// 서비스 호출
+				memberService.removeMember(memberId);
+				redirectURI = "redirect:/member/memberList";
+			}
+		}
+		return redirectURI;
+	}
 	/**
 	 * 회원탈퇴화면
 	 * @param memberId
 	 * @param model
 	 * @return
 	 */
-	@GetMapping("/deleteMember")
-	public String deleteMember(@RequestParam("memberId") String memberId,
-							   Model model) {
+	@GetMapping("/removeMember")
+	public String removeMember(@RequestParam(name="memberId") String memberId
+							  ,Model model) {
+		
 		model.addAttribute("title", "회원탈퇴");
 		model.addAttribute("memberId", memberId);
-
-//		memberService.deleteMember(memberId);
-
-		return "member/deleteMember";
+		
+		return "member/removeMember";
 	}
-	@PostMapping("/deleteMember")
-	public String deleteMember(@RequestParam("memberId") String memberId,
-							   @RequestParam("memberPw") String memberPw) {
-
-		String redirectURI = "redirect:/member/deleteMember?memberId=" + memberId;
-		// 비밀번호 확인
-		Member member = memberService.getMemberInfoById(memberId);
-		if (member != null) {
-			String checkPw = member.getMemberPw();
-
-			if (checkPw.equals(memberPw)) {
-				// 서비스 호출
-				memberService.deleteMember(memberId);
-				redirectURI = "redirect:/member/memberList";
-			}
-		}
-
-
-		return redirectURI;
-
+	
+	/**
+	 * 회원정보 수정
+	 * @param member
+	 * @return
+	 */
+	@PutMapping("/modifyMember")
+	public String modifyMember(Member member) {
+		
+		memberMapper.modifyMember(member);
+		
+		return "redirect:/member/memberList";
 	}
-
-	// update
+	/**
+	 * 회원수정화면
+	 * @param memberId
+	 * @param model
+	 * @return
+	 */
 	@GetMapping("/modifyMember")
-	public String ModifyMember(@RequestParam("memberId") String memberId
-			, Model model) {
+	public String modifyMember(
+				@RequestParam(name="memberId") String memberId
+				,Model model) {
 		Member memberInfo = memberService.getMemberInfoById(memberId);
-		List<MemberLevel> memberLevelList = memberService.getMemberLevelList();
-
+		List<MemberLevel> memberLevelList =
+					memberService.getMemberLevelList();
 		model.addAttribute("title", "회원수정");
-		model.addAttribute("memberInfo", memberInfo);
 		model.addAttribute("memberLevelList", memberLevelList);
-
+		model.addAttribute("memberInfo", memberInfo);
+		
 		return "member/modifyMember";
 	}
-	@PostMapping("/modifyMember")
-	public String modifyMember(@ModelAttribute Member member) {
-		memberService.modifyMember(member);
-		log.info("화면에서 전달 받은 데이터 : {}", member);
-		return "redirect:/member/memberList";
-	}
-
-//	@PostMapping("/modifyMember")
-//	public String modifyMember(Member member, Model model) {
-//		memberService.modifyMember(member);
-//		log.info("화면에서 전달 받은 데이터 : {}", member);
-//		model.addAttribute("member", member);
-//		return "redirect:/member/memberList";
-//	}
-// =>
-// <form id="modifyMemberForm" th:action="@{/member/modifyMember}" th:object="${member}" method="post">
-
-
-
+	
 	/**
-	 * 커맨드객체 클라이언트 쿼리파라미터 요청시 name의 속성이
-	 * 			DTO의 맴버변수명과 일치하면 자동 바인딩
-	 * @param member <- 커맨드객체
-	 * @return String redirect 키워드 리다이렉션 요청
-	 * 문법 : redirect: 요청주소;
+	 * 커맨드객체: 클라이언트 쿼리파라미터 요청시 name의 속성이 
+	 *             DTO의 멤버변수명과 일치하면 자동 바인딩
+	 * @param member <- 커맨드객체 
+	 * @return String  redirect 키워드: 리디렉션 요청
+	 * 문법 :  redirect:요청주소;
 	 */
-
 	@PostMapping("/addMember")
 	public String addMember(Member member) {
+		log.info("화면에서 전달받은 데이터 : {}", member);
 		memberService.addMember(member);
-		log.info("화면에서 전달 받은 데이터 : {}", member);
 		return "redirect:/member/memberList";
 	}
-
+	
 	@PostMapping("/idCheck")
 	@ResponseBody
-	public boolean idCheck(@RequestParam(name = "memberId") String memberId) {
+	public boolean idCheck(@RequestParam(name="memberId") String memberId) {
 		boolean checked = true;
-		// 아이디 중복체크
+		//아이디 중복체크
 		checked = memberMapper.idCheck(memberId);
-
+		
 		return checked;
 	}
-
+	
 	@GetMapping("/addMember")
 	public String addMember(Model model) {
 		
@@ -138,10 +189,12 @@ public class MemberController {
 	 * @return
 	 */
 	@GetMapping("/memberList")
-	public String getMemberList(Model model) {
-		List<Member> memberList = memberService.getMemberList();
+	public String getMemberList( Model model
+								,@RequestParam(name="searchKey", required = false) String searchKey
+								,@RequestParam(name="searchValue", required = false) String searchValue) {
+		List<Member> memberList = memberService.getMemberList(searchKey, searchValue);
 		
-		log.info("memberList: {}", memberList);
+		//log.info("memberList: {}", memberList);
 		
 		model.addAttribute("title", "회원목록조회");
 		model.addAttribute("memberList", memberList);
